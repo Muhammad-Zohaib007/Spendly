@@ -19,3 +19,22 @@ Include sections like: Acceptance of Terms, Use of Services, User Data, Limitati
 User Data, Limitations of Liability, and Changes to Terms.
 Extend base.html if it exists, otherwise match the style of landing.html
 3. In @templates/landing.html, update the "Terms and Conditions" footer link href from "#" to "/terms".
+
+
+
+Add a modal to @templates/landing.html that opens when the user clicks "See how it works".
+
+Requirements:
+Trigger: Clicking "See how it works" opens a modal overlay.
+
+Content: Modal contains an embedded YouTube video (use any placeholder YouTube URL for now, I will replace it later).
+
+Playback: Video should be playable inside the modal.
+
+Dismissal: Clicking the close button OR clicking outside the modal closes it.
+
+Behavior: When the modal closes, the video must stop playing (not continue in background).
+
+Constraints: No page libraries or dependencies — vanilla JS only, since we are not using any JS framework in this project.
+
+Note: Do not modify any other part of the page.
