@@ -1,8 +1,9 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 
-from database.db import get_db, init_db, seed_db
+from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
 
 app = Flask(__name__)
+app.secret_key = "spendly-dev-secret-key"
 
 with app.app_context():
     init_db()
@@ -17,9 +18,32 @@ def landing():
     return render_template("landing.html")
 
 
-@app.route("/register")
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    return render_template("register.html")
+    if request.method == "GET":
+        return render_template("register.html")
+
+    name = request.form.get("name", "").strip()
+    email = request.form.get("email", "").strip()
+    password = request.form.get("password", "")
+    confirm_password = request.form.get("confirm_password", "")
+
+    if not name or not email or not password or not confirm_password:
+        return render_template("register.html", error="All fields are required.")
+
+    if len(password) < 8:
+        return render_template("register.html", error="Password must be at least 8 characters.")
+
+    if password != confirm_password:
+        return render_template("register.html", error="Passwords do not match.")
+
+    if get_user_by_email(email):
+        return render_template("register.html", error="Email already registered.")
+
+    user_id = create_user(name, email, password)
+    session["user_id"] = user_id
+    flash(f"Welcome, {name}! Your account has been created.", "success")
+    return redirect(url_for("dashboard"))
 
 
 @app.route("/login")
@@ -40,6 +64,11 @@ def privacy():
 # ------------------------------------------------------------------ #
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
+
+@app.route("/dashboard")
+def dashboard():
+    return "Dashboard — coming in Step 5"
+
 
 @app.route("/logout")
 def logout():
