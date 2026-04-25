@@ -1,8 +1,10 @@
+from datetime import datetime
+
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 
 from werkzeug.security import check_password_hash
 
-from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
+from database.db import get_db, init_db, seed_db, create_user, get_user_by_email, get_user_by_id, get_expenses_by_user
 
 app = Flask(__name__)
 app.secret_key = "spendly-dev-secret-key"
@@ -45,7 +47,7 @@ def register():
     user_id = create_user(name, email, password)
     session["user_id"] = user_id
     flash(f"Welcome, {name}! Your account has been created.", "success")
-    return redirect(url_for("dashboard"))
+    return redirect(url_for("profile"))
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -64,7 +66,7 @@ def login():
         return render_template("login.html", error="Invalid email or password.")
 
     session["user_id"] = user["id"]
-    return redirect(url_for("dashboard"))
+    return redirect(url_for("profile"))
 
 
 @app.route("/terms")
@@ -94,7 +96,33 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    user     = get_user_by_id(session["user_id"])
+    expenses = get_expenses_by_user(session["user_id"])
+
+    member_since  = datetime.strptime(user["created_at"][:10], "%Y-%m-%d").strftime("%B %Y")
+    total_spent   = sum(e["amount"] for e in expenses)
+    expense_count = len(expenses)
+
+    # category totals, sorted descending by amount
+    cat_totals = {}
+    for e in expenses:
+        cat_totals[e["category"]] = cat_totals.get(e["category"], 0) + e["amount"]
+    categories = sorted(cat_totals.items(), key=lambda x: x[1], reverse=True)
+    top_category = categories[0][0] if categories else "—"
+
+    return render_template(
+        "profile.html",
+        user=user,
+        member_since=member_since,
+        expenses=expenses,
+        total_spent=total_spent,
+        expense_count=expense_count,
+        categories=categories,
+        top_category=top_category,
+    )
 
 
 @app.route("/expenses/add")

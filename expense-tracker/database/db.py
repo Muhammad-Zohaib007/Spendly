@@ -72,6 +72,23 @@ def seed_db():
     conn.close()
 
 
+def get_expenses_by_user(user_id: int):
+    conn = get_db()
+    rows = conn.execute(
+        "SELECT * FROM expenses WHERE user_id = ? ORDER BY date DESC",
+        (user_id,)
+    ).fetchall()
+    conn.close()
+    return rows
+
+
+def get_user_by_id(user_id: int):
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    conn.close()
+    return user
+
+
 def get_user_by_email(email: str):
     conn = get_db()
     user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
