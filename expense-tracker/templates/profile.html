@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Spendly{% endblock %}
+
+{% block content %}
+<div class="dash-page">
+
+    <!-- ── Page header ───────────────────────────────────────────── -->
+    <div class="dash-header">
+        <div class="dash-user">
+            <div class="dash-avatar">{{ user['name'][0].upper() }}</div>
+            <div class="dash-user-meta">
+                <h1 class="dash-name">{{ user['name'] }}</h1>
+                <span class="dash-since">Member since {{ member_since }}</span>
+            </div>
+        </div>
+        <a href="{{ url_for('logout') }}" class="btn-ghost btn-ghost--sm">Sign out</a>
+    </div>
+
+    <!-- ── Summary cards ─────────────────────────────────────────── -->
+    <div class="dash-stats">
+        <div class="stat-card">
+            <span class="stat-label">Total spent</span>
+            <span class="stat-value">₨ {{ "%.2f"|format(total_spent) }}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Transactions</span>
+            <span class="stat-value">{{ expense_count }}</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-label">Top category</span>
+            <span class="stat-value stat-value--cat">{{ top_category }}</span>
+        </div>
+    </div>
+
+    <!-- ── Main grid ─────────────────────────────────────────────── -->
+    <div class="dash-grid">
+
+        <!-- Expenses table -->
+        <div class="dash-panel">
+            <div class="panel-head">
+                <h2 class="panel-title">Expenses</h2>
+            </div>
+
+            {% if expenses %}
+            <div class="exp-table-wrap">
+                <table class="exp-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th class="num">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in expenses %}
+                        <tr>
+                            <td class="exp-date">{{ e['date'] }}</td>
+                            <td class="exp-desc">{{ e['description'] or '—' }}</td>
+                            <td><span class="exp-cat-badge">{{ e['category'] }}</span></td>
+                            <td class="num exp-amount">₨ {{ "%.2f"|format(e['amount']) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>No expenses yet. Add your first one to get started.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Category breakdown -->
+        <div class="dash-panel">
+            <div class="panel-head">
+                <h2 class="panel-title">By category</h2>
+            </div>
+
+            {% if categories %}
+            <div class="cat-list">
+                {% set max_amount = categories[0][1] %}
+                {% for cat, amount in categories %}
+                <div class="cat-row">
+                    <div class="cat-row-top">
+                        <span class="cat-name">{{ cat }}</span>
+                        <span class="cat-amount">₨ {{ "%.2f"|format(amount) }}</span>
+                    </div>
+                    <div class="cat-track">
+                        <div class="cat-bar" style="width: {{ (amount / max_amount * 100)|int }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>No categories to show yet.</p>
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
