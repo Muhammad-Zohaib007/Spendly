@@ -53,6 +53,17 @@ body {
 
 a { color: inherit; text-decoration: none; }
 
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 /* ------------------------------------------------------------------ */
 /* Navbar                                                              */
 /* ------------------------------------------------------------------ */
@@ -816,6 +827,46 @@ a { color: inherit; text-decoration: none; }
 .panel-head {
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-soft);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.exp-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.exp-filter input[type="date"] {
+    padding: 0.45rem 0.625rem;
+    font-family: inherit;
+    font-size: 0.85rem;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: border-color 0.15s ease;
+}
+
+.exp-filter input[type="date"]:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.exp-filter .btn-primary {
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+}
+
+.exp-filter-hint {
+    padding: 0.625rem 1.5rem;
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    border-bottom: 1px solid var(--border-soft);
 }
 
 .panel-title {
@@ -956,4 +1007,8 @@ a { color: inherit; text-decoration: none; }
     .dash-page  { padding: 1.5rem 1rem 3rem; }
     .dash-stats { grid-template-columns: 1fr; }
     .dash-header { flex-wrap: wrap; gap: 1rem; }
+    .exp-filter { width: 100%; flex-direction: column; align-items: stretch; }
+    .exp-filter input[type="date"],
+    .exp-filter .btn-primary,
+    .exp-filter .btn-ghost--sm { width: 100%; text-align: center; }
 }
