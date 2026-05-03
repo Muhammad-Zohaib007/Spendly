@@ -4,10 +4,21 @@ from flask import Flask, render_template, request, session, redirect, url_for, f
 
 from werkzeug.security import check_password_hash
 
-from database.db import get_db, init_db, seed_db, create_user, get_user_by_email, get_user_by_id, get_expenses_by_user
+from database.db import get_db, init_db, seed_db, create_user, get_user_by_email, get_user_by_id, get_expenses_by_user_in_range
 
 app = Flask(__name__)
 app.secret_key = "spendly-dev-secret-key"
+
+
+def _parse_iso_date(value: str) -> str:
+    """Return value if it is a valid YYYY-MM-DD string, otherwise return ''."""
+    if not value or len(value) > 10:
+        return ""
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+        return value
+    except ValueError:
+        return ""
 
 with app.app_context():
     init_db()
@@ -99,8 +110,20 @@ def profile():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
-    user     = get_user_by_id(session["user_id"])
-    expenses = get_expenses_by_user(session["user_id"])
+    user = get_user_by_id(session["user_id"])
+
+    start_date = _parse_iso_date(request.args.get("start_date", "").strip())
+    end_date   = _parse_iso_date(request.args.get("end_date", "").strip())
+
+    if start_date and end_date and start_date > end_date:
+        start_date = ""
+        end_date = ""
+
+    expenses = get_expenses_by_user_in_range(
+        session["user_id"],
+        start_date or None,
+        end_date or None,
+    )
 
     member_since  = datetime.strptime(user["created_at"][:10], "%Y-%m-%d").strftime("%B %Y")
     total_spent   = sum(e["amount"] for e in expenses)
@@ -122,6 +145,9 @@ def profile():
         expense_count=expense_count,
         categories=categories,
         top_category=top_category,
+        start_date=start_date,
+        end_date=end_date,
+        is_filtered=bool(start_date or end_date),
     )
 
 

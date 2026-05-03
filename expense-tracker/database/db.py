@@ -82,6 +82,24 @@ def get_expenses_by_user(user_id: int):
     return rows
 
 
+def get_expenses_by_user_in_range(user_id: int, start_date: str | None, end_date: str | None) -> list:
+    """Return user's expenses ordered by date desc, optionally bounded by ISO date strings."""
+    sql = "SELECT * FROM expenses WHERE user_id = ?"
+    params = [user_id]
+    if start_date:
+        sql += " AND date >= ?"
+        params.append(start_date)
+    if end_date:
+        sql += " AND date <= ?"
+        params.append(end_date)
+    sql += " ORDER BY date DESC"
+
+    conn = get_db()
+    rows = conn.execute(sql, params).fetchall()
+    conn.close()
+    return rows
+
+
 def get_user_by_id(user_id: int):
     conn = get_db()
     user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
