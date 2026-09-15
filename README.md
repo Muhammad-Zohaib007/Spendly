@@ -1,2 +1,2 @@
 # Spendly
-An app which help track your daily expense built by claude code
+An app which help track your daily expense built by using agentic coding
